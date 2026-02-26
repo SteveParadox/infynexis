@@ -56,7 +56,7 @@ class QueryResponse(BaseModel):
 
 class VerificationRequest(BaseModel):
     """Verification request schema."""
-    status: str = Field(..., regex="^(approved|rejected)$")
+    status: str = Field(..., pattern="^(approved|rejected)$")
     comment: Optional[str] = Field(None, max_length=1000)
 
 

@@ -75,8 +75,9 @@ async def upload_document(
     """
     from app.config import settings
     
-    # Verify workspace membership (members can upload)
+    # Verify workspace membership and require member role (or higher)
     context = await get_workspace_context(workspace_id, current_user, db)
+    context.require_role(WorkspaceRole.MEMBER)
     
     # Validate file size
     content = await file.read()
@@ -372,7 +373,14 @@ async def delete_document(
     document = result.scalar_one_or_none()
     
     if not document:
-        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        
+    
+    # Verify workspace membership and require admin role (or owner)
+    context = await get_workspace_context(document.workspace_id, current_user, db)
+    context.require_role(WorkspaceRole.ADMIN)
+    raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Document not found"
         )

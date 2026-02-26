@@ -14,9 +14,15 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(default=False)
     
     # Security
-    JWT_SECRET: str = Field(default="change-me-in-production")
+    JWT_SECRET: str = Field(default="")  # MUST be set in production via env
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_HOURS: int = 24
+    
+    # CORS - configure for production
+    CORS_ORIGINS: list = Field(default=["http://localhost:3000", "http://localhost:5173"])
+    CORS_CREDENTIALS: bool = True
+    CORS_METHODS: list = Field(default=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+    CORS_HEADERS: list = Field(default=["*"])
     
     # Database
     DATABASE_URL: str = Field(default="postgresql://postgres:postgres@localhost:5432/cogniflow")
@@ -79,6 +85,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        
 
 
 # Global settings instance

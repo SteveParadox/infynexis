@@ -41,17 +41,17 @@ celery_app.conf.update(
 )
 
 
+from celery.signals import task_prerun, task_postrun
+
 @task_prerun.connect
-def task_prerun_handler(task_id, task, args, kwargs):
+def task_prerun_handler(sender=None, task_id=None, task=None, args=None, kwargs=None, **other_kwargs):
     """Handle task start."""
     print(f"Starting task {task.name}[{task_id}]")
 
-
 @task_postrun.connect
-def task_postrun_handler(task_id, task, args, kwargs, retval, state):
+def task_postrun_handler(sender=None, task_id=None, task=None, args=None, kwargs=None, retval=None, state=None, **other_kwargs):
     """Handle task completion."""
     print(f"Task {task.name}[{task_id}] finished with state {state}")
-
 
 def log_ingestion_event(
     db,

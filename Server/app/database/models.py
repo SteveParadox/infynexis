@@ -35,6 +35,14 @@ class SourceType(str, PyEnum):
     WEB_CLIP = "web_clip"
 
 
+class WorkspaceRole(str, PyEnum):
+    """Workspace member roles."""
+    OWNER = "owner"      # Full control over workspace
+    ADMIN = "admin"      # Can manage members and settings
+    MEMBER = "member"    # Can create and edit documents
+    VIEWER = "viewer"    # Read-only access
+
+
 class Workspace(Base):
     """Workspace model for multi-tenancy."""
     __tablename__ = "workspaces"
@@ -91,7 +99,7 @@ class WorkspaceMember(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspaces.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    role = Column(String(50), default="member")  # owner, admin, member
+    role = Column(Enum(WorkspaceRole), default=WorkspaceRole.MEMBER, nullable=False)
     
     # Timestamps
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -164,7 +172,7 @@ class Chunk(Base):
     context_after = Column(Text, nullable=True)   # Next chunk snippet
     
     # Metadata
-    metadata = Column(JSONB, default=dict)  # Page num, section, etc.
+    chunk_metadata = Column(JSONB, default=dict)  # Page num, section, etc.
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -377,7 +385,7 @@ class AuditLog(Base):
     entity_id = Column(UUID(as_uuid=True), nullable=True, index=True)
     
     # Context
-    metadata = Column(JSONB, default=dict)
+    audit_metadata = Column(JSONB, default=dict)
     
     # Client info
     ip_address = Column(String(45), nullable=True)

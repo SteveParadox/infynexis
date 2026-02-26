@@ -1,5 +1,5 @@
 """API routes module."""
-from app.api import auth, workspaces, documents, query, knowledge_graph, audit
+from app.api import auth, workspaces, documents, query, knowledge_graph, audit, connectors, ingestion
 
 __all__ = [
     "auth",
@@ -8,4 +8,6 @@ __all__ = [
     "query",
     "knowledge_graph",
     "audit",
+    "connectors",
+    "ingestion",
 ]

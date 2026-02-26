@@ -1,27 +1,18 @@
 """Authentication and authorization dependencies."""
-from enum import Enum
-from typing import Optional, List
+from typing import Optional
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database.session import get_db
-from app.database.models import User, WorkspaceMember
+from app.database.models import User, WorkspaceMember, WorkspaceRole
 from app.core.security import get_token_payload
 
 # Security scheme
 security = HTTPBearer(auto_error=False)
-
-
-class WorkspaceRole(str, Enum):
-    """Workspace role hierarchy."""
-    OWNER = "owner"
-    ADMIN = "admin"
-    MEMBER = "member"
-    VIEWER = "viewer"
 
 
 # Role hierarchy for permission checking
