@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './sections/Dashboard';
 import { KnowledgeGraphView } from './sections/KnowledgeGraphView';
@@ -9,18 +11,19 @@ import { WorkflowsView } from './sections/WorkflowsView';
 import { PricingView } from './sections/PricingView';
 import { AIInsightsPanel } from './components/AIInsightsPanel';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Menu } from 'lucide-react';
+import { Sparkles, Menu, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { User, Note, AIInsight, Workspace } from './types';
-import { mockNotes, mockInsights, mockWorkspaces, mockUser } from './lib/mockData';
+import type { Note, AIInsight, Workspace } from './types';
+import { mockNotes, mockInsights, mockWorkspaces } from './lib/mockData';
 
 type View = 'dashboard' | 'notes' | 'graph' | 'search' | 'workspaces' | 'workflows' | 'pricing';
 
 function App() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [user] = useState<User>(mockUser);
   const [notes, setNotes] = useState<Note[]>(mockNotes);
   const [insights] = useState<AIInsight[]>(mockInsights);
   const [workspaces] = useState<Workspace[]>(mockWorkspaces);
@@ -41,6 +44,18 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  /**
+   * Handle user logout
+   */
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch {
+      // Error is handled by auth context
+    }
+  };
 
   const handleNoteCreate = (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newNote: Note = {
@@ -169,8 +184,22 @@ function App() {
                 </span>
               )}
             </Button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-sm font-medium">
-              {user.name.charAt(0)}
+            
+            {/* User Menu */}
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-medium text-white">{user?.full_name || 'User'}</p>
+                <p className="text-xs text-slate-400">{user?.email}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white flex-shrink-0"
+                onClick={handleLogout}
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </header>
